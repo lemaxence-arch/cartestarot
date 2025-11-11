@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tirage aléatoire de cartes (78)</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --card-bg: #1a2235;
+      --accent: #8ab4ff;
+      --muted: #9aa6bf;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #071029, #0b1020);
+      font-family: system-ui, sans-serif;
+      color: var(--muted);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      padding: 24px;
+    }
+    h1 {
+      color: #e6eef9;
+      margin-bottom: 12px;
+    }
+    .table {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
+      min-height: 200px;
+      max-width: 90vw;
+    }
+    .table img {
+      height: 180px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      transition: transform 0.2s ease;
+    }
+    .table img:hover {
+      transform: scale(1.05);
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      background: linear-gradient(180deg, var(--accent), #5f8de1);
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(22,49,104,0.35);
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background: linear-gradient(180deg, #9bc4ff, #6d9cf0);
+    }
+    button.secondary {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      box-shadow: none;
+    }
+    #status {
+      margin-top: 12px;
+      color: #a8b4d0;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tirage aléatoire de cartes</h1>
+  <div class="table" id="table"></div>
+  
+  <div class="controls">
+    <button id="drawBtn">Tirer une carte</button>
+    <button id="drawAnotherBtn" style="display:none;">Tirer une autre</button>
+    <button id="resetBtn" class="secondary" style="display:none;">Remélanger le paquet</button>
+  </div>
+
+  <div id="status">Prêt — aucun tirage effectué</div>
+
+  <script>
+    // === CONFIGURATION ===
+    const totalImages = 78;
+    const folder = "images/";
+    const base = "img";
+    const ext = ".jpg"; // change en .png ou .webp selon tes fichiers
+
+    const imagePaths = [];
+    for (let i = 1; i <= totalImages; i++) {
+      const num = String(i).padStart(2, "0");
+      imagePaths.push(folder + base + num + ext);
+    }
+
+    // Mélange du paquet
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    let deck = [...imagePaths];
+    shuffle(deck);
+
+    const table = document.getElementById("table");
+    const drawBtn = document.getElementById("drawBtn");
+    const drawAnotherBtn = document.getElementById("drawAnotherBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const status = document.getElementById("status");
+
+    function drawCard() {
+      if (deck.length === 0) {
+        status.textContent = "Toutes les cartes ont été tirées.";
+        return;
+      }
+      const next = deck.pop();
+      const img = document.createElement("img");
+      img.src = next;
+      img.alt = "Carte " + (totalImages - deck.length);
+      table.appendChild(img);
+
+      status.textContent = `Carte ${totalImages - deck.length}/${totalImages}`;
+      drawBtn.style.display = "none";
+      drawAnotherBtn.style.display = "inline-block";
+      resetBtn.style.display = "inline-block";
+    }
+
+    function resetDeck() {
+      deck = [...imagePaths];
+      shuffle(deck);
+      table.innerHTML = "";
+      status.textContent = "Paquet remélangé — prêt à tirer.";
+      drawBtn.style.display = "inline-block";
+      drawAnotherBtn.style.display = "none";
+      resetBtn.style.display = "none";
+    }
+
+    drawBtn.addEventListener("click", drawCard);
+    drawAnotherBtn.addEventListener("click", drawCard);
+    resetBtn.addEventListener("click", resetDeck);
+  </script>
+</body>
+</html>
